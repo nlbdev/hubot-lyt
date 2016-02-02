@@ -16,7 +16,7 @@ if [ "$SLACK_WEBHOOK_PATH" = "" ]; then
 fi
 if [ ! -f "$SLACK_WEBHOOK_PATH" ]; then
     echo "$SLACK_WEBHOOK_PATH does not exist; can't send message to Slack"
-    #exit
+    exit
 else
     SLACK_WEBHOOK="`cat "$SLACK_WEBHOOK_PATH" | head -n 1`"
 fi

@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# This script installs LYT to the test-server.
+# By default, the most recent NLB-version is used.
+#
+# The script can optionally be given a specific tag,
+# branch, or commit as the first argument to use instead.
+#
+
+source common.sh
+
+repository_prepare
+
+if [ "$1" = "" ]; then
+    COMMIT="`git tag | grep "^nlb-[0-9\.]\+$" | sed 's/^.*-//' | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1`"
+else
+    COMMIT="$1"
+fi
+
+# build
+cd $LYT_REPO
+git checkout $COMMIT
+npm install
+cake app
+
+# install
+cd $DIR/..
+mkdir -p target
+cd target
+rm www -rf
+mkdir www
+cp -ar "$LYT_REPO"/build www

@@ -4,46 +4,17 @@
 # 30 8 * * 1-5 $HOME/hubot-lyt/bash/automerge
 #
 
-set -e
+source common.sh
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [ "$DEBUG" = "1" ]; then
-    set -v
-fi
-
-if [ "$LYT_REPO" = "" ]; then
-    # The repo doesn't need to be persistent between runs so /tmp is fine
-    LYT_REPO="/tmp/LYT"
-fi
-
-function log {
-    echo $1
-    "$DIR/slack" $1
-}
-
-if [ ! -d "$LYT_REPO" ]; then
-    log "The directory $LYT_REPO does not exist. Cloning LYT..."
-    git clone "https://github.com/nlbdev/LYT.git" "$LYT_REPO"
-    cd $LYT_REPO
-    git remote add notalib "https://github.com/Notalib/LYT.git"
-fi
+repository_prepare
 
 cd $LYT_REPO
-git reset --hard
-git clean -d -x -f # not needed maybe?
-if [ "`git branch --list nlb | wc -l`" = "0" ]; then
-    git checkout -b nlb --track origin/nlb
-else
-    git checkout nlb
-fi
-git pull --all
 
-LYT_TAGS="`git tag | grep -v 2.3.0 | grep "^lyt-[0-9\.]\+$" | sed 's/^lyt-\(.*\)$/\1-0lyt/'`"
+LYT_TAGS="`git tag | grep "^lyt-[0-9\.]\+$" | sed 's/^lyt-\(.*\)$/\1-0lyt/'`"
 NLB_TAGS="`git tag | grep "^nlb-[0-9\.]\+$" | sed 's/^nlb-\(.*\)$/\1-1nlb/'`"
 NEXT_LYT="`printf "$LYT_TAGS\n$NLB_TAGS" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tr '\n' ' ' | sed 's/.*nlb//' | sed 's/^ *//' | sed 's/ .*//g' | sed 's/-.*$//'`"
 if [ "$NEXT_LYT" = "" ]; then
-    log "No new release to merge (newest lyt tag is lyt-`printf "$LYT_TAGS" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1 | sed 's/-.*$//'`)"
+    message_debug "No new release to merge (newest lyt tag is lyt-`printf "$LYT_TAGS" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1 | sed 's/-.*$//'`)"
     exit
 fi
 NEXT_NLB="nlb-$NEXT_LYT"
@@ -52,3 +23,5 @@ NEXT_LYT="lyt-$NEXT_LYT"
 git merge $NEXT_LYT --no-ff -Xtheirs -Xpatience -m "automatic merge from $NEXT_LYT"
 git tag $NEXT_NLB
 git push origin
+message_info "En ny versjon av web-spilleren er tilgjengelig for testing: $NEXT_NLB"
+message_info "For å installere på test-serveren, skriv: nlb webspiller test $NEXT_NLB"
