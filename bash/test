@@ -12,7 +12,7 @@ source common.sh
 repository_prepare
 
 if [ "$1" = "" ]; then
-    COMMIT="`git tag | grep "^nlb-[0-9\.]\+$" | sed 's/^.*-//' | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1`"
+    COMMIT="nlb-`git tag | grep "^nlb-[0-9\.]\+$" | sed 's/^.*-//' | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1`"
 else
     COMMIT="$1"
 fi
@@ -24,9 +24,6 @@ npm install
 cake app
 
 # install
-cd $DIR/..
-mkdir -p target
-cd target
-rm www -rf
-mkdir www
-cp -ar "$LYT_REPO"/build www
+mkdir -p "$DIR"/../target
+rm "$DIR"/../target/www -rf
+mv "$LYT_REPO"/build "$DIR"/../target/www
