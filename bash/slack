@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Sends data from STDIN to the Slack webhook
+# configured in $SLACK_WEBHOOK_PATH
+# which defauls to ~/config/slack.webhook
+#
+
+set -e
+
+if [ "$DEBUG" = "1" ]; then
+    set -v
+fi
+
+if [ "$SLACK_WEBHOOK_PATH" = "" ]; then
+    SLACK_WEBHOOK_PATH="$HOME/config/slack.webhook"
+fi
+if [ ! -f "$SLACK_WEBHOOK_PATH" ]; then
+    echo "$SLACK_WEBHOOK_PATH does not exist; can't send message to Slack"
+    #exit
+else
+    SLACK_WEBHOOK="`cat "$SLACK_WEBHOOK_PATH" | head -n 1`"
+fi
+
+if [ "$ANNOUNCE_CHANNEL" = "" ]; then
+    ANNOUNCE_CHANNEL="#webspiller"
+fi
+
+if [ "$BOT_NAME" = "" ]; then
+    BOT_NAME="NLB"
+fi
+
+if [ "$BOT_ICON" = "" ]; then
+    BOT_ICON="https://s3-us-west-2.amazonaws.com/slack-files2/avatars/2015-08-10/8878694496_9e4e1c78db905c4d3396_48.jpg"
+fi
+
+JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"parse\": \"$SLACK_PARSE\", \"text\": \"$(cat /dev/stdin | sed 's/\(^\| \)\(http:[^ ]*\|https:[^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\.[a-z][^ ]*\)\( \|$\)/\1<\2>\3/g' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk 1 ORS='\\n')\"}"
+curl -X POST --data-urlencode "payload=$JSON" "$SLACK_WEBHOOK"
