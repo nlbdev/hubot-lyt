@@ -21,12 +21,15 @@ exec &> >(tee -ia $TEMP_LOGFILE)
 
 # when a command outputs a non-zero value, before exiting;
 # send last 10 lines of output from bash script as error message
-function bash_script_error_exit {
+function bash_script_error {
     set +e
     message_error "`tail -n 10 "$TEMP_LOGFILE"`"
+}
+function bash_script_exit {
     rm "$TEMP_LOGFILE"
 }
-trap bash_script_error_exit ERR
+trap bash_script_error ERR
+trap bash_script_exit EXIT
 
 if [ "$LYT_REPO" = "" ]; then
     # The repo doesn't need to be persistent between runs so /tmp is fine

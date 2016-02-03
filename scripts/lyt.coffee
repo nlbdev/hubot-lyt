@@ -19,7 +19,7 @@ module.exports = (robot) ->
   robot.respond /upgrade/i, (res) ->
     child_process.exec "\""+script_dir+"/upgrade\"", (error, stdout, stderr) ->
   
-  robot.respond /webspiller test/i, (res) ->
+  robot.respond /webspiller test$/i, (res) ->
     child_process.exec "\""+script_dir+"/test\"", (error, stdout, stderr) ->
   
   robot.respond /webspiller test (.*)/i, (res) ->

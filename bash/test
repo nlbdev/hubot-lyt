@@ -11,14 +11,13 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/common.sh"
 
-message_info "Installerer $1..."
+COMMIT="$1"
+message_info "Henter $COMMIT..."
 
 repository_prepare
 
-if [ "$1" = "" ]; then
+if [ "$COMMIT" = "" ]; then
     COMMIT="nlb-`git tag | grep "^nlb-[0-9\.]\+$" | sed 's/^.*-//' | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1`"
-else
-    COMMIT="$1"
 fi
 
 # build
@@ -33,4 +32,4 @@ mkdir -p "$DIR"/../target
 rm "$DIR"/../target/www -rf
 mv "$LYT_REPO"/build "$DIR"/../target/www
 
-message_info "Installerte versjon '$COMMIT' av web-spilleren på test-serveren: http://`test_server_ip`/"
+message_success "Installerte versjon '$COMMIT' av web-spilleren på test-serveren: http://`test_server_ip`/"
