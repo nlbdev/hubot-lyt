@@ -57,7 +57,7 @@ Dette er for at bash-skriptene skal kunne sende meldinger til Slack.
 ```
 sudo apt-get install apache2
 sudo rm /var/www/html -rf
-sudo ln --symbolic $HOME/hubot-lyt/target/www /var/www/test
+sudo ln --symbolic $HOME/hubot-lyt/target/www /var/www/html
 ```
 
 ### 7. Konfigurér SSH og IP-adresser
