@@ -9,6 +9,8 @@ source "$DIR/common.sh"
 
 cd "$HUBOT_DIR"
 
+message_info "Ser etter oppdateringer på GitHub..."
+
 REMOTE_URL="`git remote -v | grep origin | head -n 1 | sed 's/.*http/http/' | sed 's/ .*//'`"
 
 git remote update
