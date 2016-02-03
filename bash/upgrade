@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# This script updates the bot to the latest version.
+#
+
+source common.sh
+
+cd "$HUBOT_DIR"
+
+git add -A && git pull origin master 2>&1 # git add to avoid overwriting unstaged changes
+if [ $? -eq 0 ]; then
+  test_server_hubot_shutdown
+else
+  message_error "Failed to pull the latest version of this bot from `git remote -v | grep origin | head -n 1 | sed 's/.*http/http/' | sed 's/ .*//'`"
+fi

@@ -10,15 +10,31 @@ if [ "$DEBUG" = "1" ]; then
 fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+HUBOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 
 if [ "$LYT_REPO" = "" ]; then
     # The repo doesn't need to be persistent between runs so /tmp is fine
     LYT_REPO="/tmp/LYT"
 fi
 
+function message_error {
+    echo $1
+    echo $1 | "$DIR/slack" error
+}
+
+function message_warn {
+    echo $1
+    echo $1 | "$DIR/slack" warn
+}
+
 function message_info {
     echo $1
     echo $1 | "$DIR/slack"
+}
+
+function message_success {
+    echo $1
+    echo $1 | "$DIR/slack" success
 }
 
 function message_debug {
@@ -42,4 +58,16 @@ function repository_prepare {
         git checkout nlb
     fi
     git pull --all
+}
+
+function test_server_ip {
+    curl -s http://whatismijnip.nl | cut -d " " -f 5
+}
+
+function test_server_hubot_shutdown {
+    message_warn "I'm shutting down..."
+    
+    cd "$HUBOT_DIR"
+    HUBOT_PID="`ps axo pid,command | grep -v grep | grep node_modules/.bin/hubot | awk '{print $1}'`"
+    kill $HUBOT_PID
 }

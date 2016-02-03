@@ -27,3 +27,5 @@ cake app
 mkdir -p "$DIR"/../target
 rm "$DIR"/../target/www -rf
 mv "$LYT_REPO"/build "$DIR"/../target/www
+
+message_info "Installerte versjon '$COMMIT' av web-spilleren på test-serveren: http://`test_server_ip`/"

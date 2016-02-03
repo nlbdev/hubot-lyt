@@ -1,6 +1,9 @@
 #!/bin/bash
 
-#set -e
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export BASH_SCRIPTS_DIR="$DIR/bash"
 
 npm install
 export PATH="node_modules/.bin:node_modules/hubot/node_modules/.bin:$PATH"
@@ -11,12 +14,15 @@ ANNOUNCE_CHANNEL="#webspiller"
 SLACK_WEBHOOK="`cat $HOME/config/slack.webhook | head -n 1`"
 BOT_ICON="https://s3-us-west-2.amazonaws.com/slack-files2/avatars/2015-08-10/8878694496_9e4e1c78db905c4d3396_48.jpg"
 
+if [[ "$HUBOT_ADAPTER" = "" ]] ; then
+    HUBOT_ADAPTER="slack"
+fi
+
 if [[ "$SLACK_WEBHOOK" != "" ]] ; then
   JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"text\": \"Jeg er våken!\"}"
   curl -s -d "payload=$JSON" "$SLACK_WEBHOOK"
 fi
-#set +e
-exec node_modules/.bin/hubot --name "$BOT_NAME" --adapter slack "$@"
+exec node_modules/.bin/hubot --name "$BOT_NAME" --adapter $HUBOT_ADAPTER "$@"
 if [[ "$SLACK_WEBHOOK" != "" ]] ; then
   JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"text\": \"Jeg går og legger meg...\"}"
   curl -s -d "payload=$JSON" "$SLACK_WEBHOOK"

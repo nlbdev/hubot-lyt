@@ -3,12 +3,62 @@
 # Sends data from STDIN to the Slack webhook
 # configured in $SLACK_WEBHOOK_PATH
 # which defauls to ~/config/slack.webhook
+# 
+# does not depend on the other scripts
+# (i.e. can easily be reused in other projects)
+# 
+# The script can be given an argument describing
+# the message severity. If one of the following
+# values are given as the first argument, then
+# an emoticon will be added to the start of
+# the message to signal the severity:
+# 
+# - error
+# - warn
+# - info
+# - success
+# - debug
+# 
+# By default no emoticon is added to the beginning.
+# Emoticons can be added manually by inserting them
+# in the text.
+# 
+# Examples:
+# echo "message text" | ./slack
+# echo ":grinning: hello" | ./slack
+# echo "an error occured" | ./slack error
 #
 
 set -e
 
 if [ "$DEBUG" = "1" ]; then
     set -v
+fi
+
+if [ "$1" != "" ]; then
+    STATUS="$1"
+fi
+
+if [ "$STATUS" = "error" ]; then
+    STATUS=":red_circle: "
+else
+    if [ "$STATUS" = "warn" ]; then
+        STATUS=":warning: "
+    else
+        if [ "$STATUS" = "info" ]; then
+            STATUS=":information_source: "
+        else
+            if [ "$STATUS" = "success" ]; then
+                STATUS=":white_check_mark: "
+            else
+                if [ "$STATUS" = "debug" ]; then
+                    STATUS=":small_red_triangle: "
+                else
+                    STATUS=""
+                fi
+            fi
+        fi
+    fi
 fi
 
 if [ "$SLACK_WEBHOOK_PATH" = "" ]; then
@@ -33,5 +83,5 @@ if [ "$BOT_ICON" = "" ]; then
     BOT_ICON="https://s3-us-west-2.amazonaws.com/slack-files2/avatars/2015-08-10/8878694496_9e4e1c78db905c4d3396_48.jpg"
 fi
 
-JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"parse\": \"$SLACK_PARSE\", \"text\": \"$(cat /dev/stdin | sed 's/\(^\| \)\(http:[^ ]*\|https:[^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\.[a-z][^ ]*\)\( \|$\)/\1<\2>\3/g' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk 1 ORS='\\n')\"}"
+JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"parse\": \"$SLACK_PARSE\", \"text\": \"$STATUS$(cat /dev/stdin | sed 's/\(^\| \)\(http:[^ ]*\|https:[^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\.[a-z][^ ]*\)\( \|$\)/\1<\2>\3/g' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk 1 ORS='\\n')\"}"
 curl -X POST --data-urlencode "payload=$JSON" "$SLACK_WEBHOOK"
