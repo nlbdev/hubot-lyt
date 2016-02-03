@@ -30,6 +30,7 @@
 #
 
 set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ "$DEBUG" = "1" ]; then
     set -v

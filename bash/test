@@ -7,7 +7,9 @@
 # branch, or commit as the first argument to use instead.
 #
 
-source common.sh
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/common.sh"
 
 message_info "Installerer $1..."
 

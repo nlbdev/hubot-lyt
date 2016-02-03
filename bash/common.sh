@@ -8,6 +8,8 @@
 #####################################################################
 
 set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+HUBOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 
 if [ "$DEBUG" = "1" ]; then
     set -v
@@ -25,9 +27,6 @@ function bash_script_error_exit {
     rm "$TEMP_LOGFILE"
 }
 trap bash_script_error_exit EXIT
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-HUBOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 
 if [ "$LYT_REPO" = "" ]; then
     # The repo doesn't need to be persistent between runs so /tmp is fine

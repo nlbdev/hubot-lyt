@@ -4,7 +4,9 @@
 # 30 8 * * 1-5 $HOME/hubot-lyt/bash/automerge
 #
 
-source common.sh
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/common.sh"
 
 repository_prepare
 

@@ -13,13 +13,15 @@ module.exports = (robot) ->
   
   script_dir = process.env.BASH_SCRIPTS_DIR
   
-  child_process.exec script_dir+"/slack \"bot er våken!\"", (error, stdout, stderr) ->
+  # don't know why this doesn't work. if it worked we could remove the stuff in bin/hubot
+  child_process.exec "\""+script_dir+"/slack\" \"bot er våken!\"", (error, stdout, stderr) ->
   
   robot.respond /upgrade/i, (res) ->
-    child_process.exec script_dir+"/upgrade", (error, stdout, stderr) ->
+    child_process.exec "\""+script_dir+"/upgrade\"", (error, stdout, stderr) ->
   
   robot.respond /webspiller test/i, (res) ->
-    child_process.exec script_dir+"/test", (error, stdout, stderr) ->
+    child_process.exec "\""+script_dir+"/test\"", (error, stdout, stderr) ->
   
   robot.respond /webspiller test (.*)/i, (res) ->
-    child_process.exec script_dir+"/test "+res.match[1], (error, stdout, stderr) ->
+    child_process.exec "\""+script_dir+"/test\" "+res.match[1], (error, stdout, stderr) ->
+
