@@ -9,9 +9,25 @@ source "$DIR/common.sh"
 
 cd "$HUBOT_DIR"
 
-git add -A && git pull origin master 2>&1 # git add to avoid overwriting unstaged changes
-if [ $? -eq 0 ]; then
-  test_server_hubot_shutdown
+git add -A # git add to avoid overwriting unstaged changes
+
+REMOTE_URL="`git remote -v | grep origin | head -n 1 | sed 's/.*http/http/' | sed 's/ .*//'`"
+
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse @{u})
+BASE=$(git merge-base @ @{u})
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    message_info "Ingen nye versjoner av denne bot'en er tilgjengelig fra $REMOTE_URL"
+    
+elif [ "$LOCAL" = "$BASE" ]; then
+    git pull origin master
+    message_success "Kildekoden til bot'en er nå oppdatert."
+    test_server_hubot_shutdown
+    
+elif [ "$REMOTE" = "$BASE" ]; then
+    message_warn "Kildekoden til bot'en er endret lokalt. Vennligst logg inn på serveren med SSH og push manuelt. For eksempel: 'git push'"
+    
 else
-  message_error "Failed to pull the latest version of this bot from `git remote -v | grep origin | head -n 1 | sed 's/.*http/http/' | sed 's/ .*//'`"
+    message_warn "Kildekoden til bot'en er endret lokalt. Vennligst logg inn på serveren med SSH og rebase+push manuelt. For eksempel: 'git pull --rebase origin master && git push'"
 fi

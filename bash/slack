@@ -18,15 +18,22 @@
 # - info
 # - success
 # - debug
+# - (empty)
 # 
 # By default no emoticon is added to the beginning.
 # Emoticons can be added manually by inserting them
 # in the text.
+#
+# The script can also be given a second argument to
+# enable parsing of names and channels. Pass the
+# string "link_names" as the second argument
+# to enable this.
 # 
 # Examples:
 # echo "message text" | ./slack
 # echo ":grinning: hello" | ./slack
 # echo "an error occured" | ./slack error
+# echo "@channel this is an announcement" | ./slack info link_names
 #
 
 set -e
@@ -62,6 +69,12 @@ else
     fi
 fi
 
+if [ "$2" = "link_names" ]; then
+    LINK_NAMES="1"
+else
+    LINK_NAMES="0"
+fi
+
 if [ "$SLACK_WEBHOOK_PATH" = "" ]; then
     SLACK_WEBHOOK_PATH="$HOME/config/slack.webhook"
 fi
@@ -84,5 +97,5 @@ if [ "$BOT_ICON" = "" ]; then
     BOT_ICON="https://s3-us-west-2.amazonaws.com/slack-files2/avatars/2015-08-10/8878694496_9e4e1c78db905c4d3396_48.jpg"
 fi
 
-JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"parse\": \"$SLACK_PARSE\", \"text\": \"$STATUS$(cat /dev/stdin | sed 's/\(^\| \)\(http:[^ ]*\|https:[^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\.[a-z][^ ]*\)\( \|$\)/\1<\2>\3/g' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk 1 ORS='\\n')\"}"
+JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"link_names\": \"$LINK_NAMES\", \"text\": \"$STATUS$(cat /dev/stdin | sed 's/\(^\| \)\(http:[^ ]*\|https:[^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\.[a-z][^ ]*\)\( \|$\)/\1<\2>\3/g' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk 1 ORS='\\n')\"}"
 curl -X POST --data-urlencode "payload=$JSON" "$SLACK_WEBHOOK"

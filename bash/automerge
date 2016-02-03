@@ -16,14 +16,13 @@ LYT_TAGS="`git tag | grep "^lyt-[0-9\.]\+$" | sed 's/^lyt-\(.*\)$/\1-0lyt/'`"
 NLB_TAGS="`git tag | grep "^nlb-[0-9\.]\+$" | sed 's/^nlb-\(.*\)$/\1-1nlb/'`"
 NEXT_LYT="`printf "$LYT_TAGS\n$NLB_TAGS" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tr '\n' ' ' | sed 's/.*nlb//' | sed 's/^ *//' | sed 's/ .*//g' | sed 's/-.*$//'`"
 if [ "$NEXT_LYT" = "" ]; then
-    message_debug "No new release to merge (newest lyt tag is lyt-`printf "$LYT_TAGS" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1 | sed 's/-.*$//'`)"
-    exit
+    message_debug "Ingen ny versjon å hente fra GitHub (nyeste lyt tag er lyt-`printf "$LYT_TAGS" | sort -t '.' -k 1,1 -k 2,2 -k 3,3 -k 4,4 -g | tail -n 1 | sed 's/-.*$//'`)"
+    exit 0
 fi
 NEXT_NLB="nlb-$NEXT_LYT"
 NEXT_LYT="lyt-$NEXT_LYT"
 
-git merge $NEXT_LYT --no-ff -Xtheirs -Xpatience -m "automatic merge from $NEXT_LYT"
+git merge $NEXT_LYT --no-ff -Xtheirs -Xpatience -m "Automatic merge from $NEXT_LYT"
 git tag $NEXT_NLB
 git push origin
-message_info "En ny versjon av web-spilleren er tilgjengelig for testing: $NEXT_NLB"
-message_info "For å installere på test-serveren, skriv: nlb webspiller test $NEXT_NLB"
+message_announcement "Versjon $NEXT_NLB av web-spilleren er tilgjengelig for testing. For å installere på test-serveren, skriv: nlb webspiller test $NEXT_NLB"

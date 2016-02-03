@@ -48,6 +48,11 @@ function message_info {
     echo $1 | "$DIR/slack"
 }
 
+function message_announcement {
+    echo $1
+    echo "<!channel> $1" | "$DIR/slack" info
+}
+
 function message_success {
     echo $1
     echo $1 | "$DIR/slack" success
@@ -64,7 +69,7 @@ function message_debug {
 
 function repository_prepare {
     if [ ! -d "$LYT_REPO" ]; then
-        message_debug "The directory $LYT_REPO does not exist. Cloning LYT..."
+        message_debug "Mappen $LYT_REPO finnes ikke. Kloner LYT..."
         git clone "https://github.com/nlbdev/LYT.git" "$LYT_REPO"
         cd $LYT_REPO
         git remote add notalib "https://github.com/Notalib/LYT.git"
@@ -86,9 +91,11 @@ function test_server_ip {
 }
 
 function test_server_hubot_shutdown {
-    message_warn "I'm shutting down..."
+    message_warn "Starter bot på nytt..."
     
     cd "$HUBOT_DIR"
     HUBOT_PID="`ps axo pid,command | grep -v grep | grep node_modules/.bin/hubot | awk '{print $1}'`"
+    set +e
     kill $HUBOT_PID
+    set -e
 }
