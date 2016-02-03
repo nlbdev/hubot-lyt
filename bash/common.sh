@@ -26,7 +26,7 @@ function bash_script_error_exit {
     message_error "`tail -n 10 "$TEMP_LOGFILE"`"
     rm "$TEMP_LOGFILE"
 }
-trap bash_script_error_exit EXIT
+trap bash_script_error_exit ERR
 
 if [ "$LYT_REPO" = "" ]; then
     # The repo doesn't need to be persistent between runs so /tmp is fine
