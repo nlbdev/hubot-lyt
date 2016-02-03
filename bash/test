@@ -25,6 +25,7 @@ message_info "Kompilerer..."
 cd $LYT_REPO
 git checkout $COMMIT
 npm install
+cake clean
 cake app
 
 # install
