@@ -3,11 +3,28 @@
 # Helper script to set common variables and define common functions
 #
 
+#####################################################################
+#                 Environment variables and logging                 #
+#####################################################################
+
 set -e
 
 if [ "$DEBUG" = "1" ]; then
     set -v
 fi
+
+# capture all output in a temporary file
+TEMP_LOGFILE="`tempfile`"
+exec &> >(tee -ia $TEMP_LOGFILE)
+
+# when a command outputs a non-zero value, before exiting;
+# send last 10 lines of output from bash script as error message
+function bash_script_error_exit {
+    set +e
+    message_error "`tail -n 10 "$TEMP_LOGFILE"`"
+    rm "$TEMP_LOGFILE"
+}
+trap bash_script_error_exit EXIT
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HUBOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
@@ -40,6 +57,11 @@ function message_success {
 function message_debug {
     echo $1
 }
+
+
+#####################################################################
+#                          Common tasks                             #
+#####################################################################
 
 function repository_prepare {
     if [ ! -d "$LYT_REPO" ]; then
