@@ -32,7 +32,19 @@ sudo gem update --system && sudo gem install compass
 
 ```
 sudo apt-get install git
+git config --global user.name "NLB Bot"
+git config --global user.email "jostein@nlb.no"
+git config --global github.user nlbbot
+git config --global github.token [token]
 ```
+
+**Merk**: Vi bruker github-brukeren "nlbbot" for å utføre automatiske operasjoner.
+Denne brukeren er knyttet til e-posten `jostein@nlb.no` inntil videre, men
+i fremtiden bør vi lage en egen e-post for dette; f.eks. `github@nlb.no`.
+
+Erstatt `[token]` med en [GitHub Personal access token](https://github.com/settings/tokens).
+Gjenbruk enten den som er installert på serveren allerede, eller lag en ny en hvis
+ikke den eksisterende er å oppdrive noe sted.
 
 ### 4. Sørg for at hubot-lyt starter ved boot
 
