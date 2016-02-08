@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# This script checks the status of the test-server
+# and the production server and reports
+# whether the sites are up and which versions
+# are installed.
+#
+
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/common.sh"
+
+TEST_IP="`whatismyip`"
+PROD_USER="`read_config user`"
+PROD_IP="`read_config ip`"
+PROD_PATH="`read_config path`"
+
+TEST_STATUS="`curl -o /dev/null --silent --head --write-out '%{http_code}\n' http://$TEST_IP/`"
+PROD_STATUS="`curl -o /dev/null --silent --head --write-out '%{http_code}\n' http://$PROD_IP/`"
+
+TEST_VERSION="`cd "$HUBOT_DIR" && git describe --tags`"
+PROD_VERSION="`ssh $PROD_USER@$PROD_IP cat "$PROD_PATH/.git-tag"`"
+
+if [ "$TEST_VERSION" = "" ]; then
+    TEST_VERSION="ukjent"
+fi
+if [ "$PROD_VERSION" = "" ]; then
+    PROD_VERSION="ukjent"
+fi
+
+if [ "$TEST_STATUS" = "200" ]; then
+    message_success "Test-server (http://$TEST_IP/): versjon $TEST_VERSION"
+else
+    message_error "Test-server (http://$TEST_IP/): versjon $TEST_VERSION"
+fi
+
+if [ "$TEST_STATUS" = "200" ]; then
+    message_success "Drift-server (http://$PROD_IP/): versjon $PROD_VERSION"
+else
+    message_error "Drift-server (http://$PROD_IP/): versjon $PROD_VERSION"
+fi

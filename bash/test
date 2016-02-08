@@ -33,4 +33,4 @@ mkdir -p "$DIR"/../target
 rm "$DIR"/../target/www -rf
 mv "$LYT_REPO"/build "$DIR"/../target/www
 
-message_success "Installerte versjon '$COMMIT' av web-spilleren på test-serveren: http://`test_server_ip`/"
+message_success "Installerte versjon '$COMMIT' av web-spilleren på test-serveren: http://`whatismyip`/"

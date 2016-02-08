@@ -76,7 +76,7 @@ else
 fi
 
 if [ "$SLACK_WEBHOOK_PATH" = "" ]; then
-    SLACK_WEBHOOK_PATH="$HOME/config/slack.webhook"
+    SLACK_WEBHOOK_PATH="$HOME/.config/hubot-lyt/slack.webhook"
 fi
 if [ ! -f "$SLACK_WEBHOOK_PATH" ]; then
     echo "$SLACK_WEBHOOK_PATH does not exist; can't send message to Slack"
@@ -98,4 +98,4 @@ if [ "$BOT_ICON" = "" ]; then
 fi
 
 JSON="{\"channel\": \"$ANNOUNCE_CHANNEL\", \"username\": \"$BOT_NAME\", \"icon_url\": \"$BOT_ICON\", \"link_names\": \"$LINK_NAMES\", \"text\": \"$STATUS$(cat /dev/stdin | sed 's/\(^\| \)\(http:[^ ]*\|https:[^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\|[a-z][^ ]*\.[a-z][^ ]*\.[a-z][^ ]*\)\( \|$\)/\1<\2>\3/g' | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | awk 1 ORS='\\n')\"}"
-curl -X POST --data-urlencode "payload=$JSON" "$SLACK_WEBHOOK"
+curl --silent -X POST --data-urlencode "payload=$JSON" "$SLACK_WEBHOOK" 2>&1 >/dev/null

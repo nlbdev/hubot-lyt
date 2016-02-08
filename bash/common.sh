@@ -89,8 +89,12 @@ function repository_prepare {
     git pull --all
 }
 
-function test_server_ip {
+function whatismyip {
     curl -s http://whatismijnip.nl | cut -d " " -f 5
+}
+
+function read_config {
+    cat ~/.config/hubot-lyt/production.config | grep -i "^$1:" | head -n 1 | sed 's/^.*\?: *//' | sed 's/ *$//'
 }
 
 function test_server_hubot_shutdown {

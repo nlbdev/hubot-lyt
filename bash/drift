@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# This script installs LYT to the production server.
+# The version installed on the test-server is
+# copied to the production server.
+#
+
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/common.sh"
+
+if [ ! -d "$DIR/../target/www" ]; then
+    message_error "Det er ingen versjon installert på test-serveren."
+    message_error "Installer en versjon på test-serveren med 'webspiller test'-kommandoen først."
+fi
+
+PROD_USER="`cat ~/.config/hubot-lyt/production.config | grep -i '^user:' | head -n 1 | sed 's/^.*\?: *//' | sed 's/ *$//'`"
+PROD_IP="`cat ~/.config/hubot-lyt/production.config | grep -i '^ip:' | head -n 1 | sed 's/^.*\?: *//' | sed 's/ *$//'`"
+PROD_PATH="`cat ~/.config/hubot-lyt/production.config | grep -i '^path:' | head -n 1 | sed 's/^.*\?: *//' | sed 's/ *$//'`"
+
+if [ "$PROD_USER" = "" ]; then
+    message_error "Brukernavn til driftserver mangler ('user:' i konfigurasjon)"
+    exit
+fi
+if [ "$PROD_IP" = "" ]; then
+    message_error "IP/hostname til driftserver mangler ('ip:' i konfigurasjon)"
+    exit
+fi
+if [ "$PROD_PATH" = "" ]; then
+    message_error "Sti for kopiering til driftserver mangler ('path:' i konfigurasjon)"
+    exit
+fi
+
+message_info "Kopierer over ny versjon..."
+PROD_VERSION="`cd "$HUBOT_DIR" && git describe --tags`"
+ssh $PROD_USER@$PROD_IP rm "$PROD_PATH/*" -rf
+rsync -az "$DIR/../target/www/" $PROD_USER@$PROD_IP:"$PROD_PATH/" -v
+echo $PROD_VERSION | ssh $PROD_USER@$PROD_IP "cat >> \"$PROD_PATH/.git-tag\""
+
+message_success "Installerte versjon '$PROD_VERSION' av web-spilleren på drift-serveren: http://`read_config ip`/"
