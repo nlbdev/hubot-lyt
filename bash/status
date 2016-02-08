@@ -18,7 +18,7 @@ PROD_PATH="`read_config path`"
 TEST_STATUS="`curl -o /dev/null --silent --head --write-out '%{http_code}\n' http://$TEST_IP/`"
 PROD_STATUS="`curl -o /dev/null --silent --head --write-out '%{http_code}\n' http://$PROD_IP/`"
 
-TEST_VERSION="`cd "$HUBOT_DIR" && git describe --tags`"
+TEST_VERSION="`cd "$LYT_REPO" && git describe --tags`"
 PROD_VERSION="`ssh $PROD_USER@$PROD_IP cat "$PROD_PATH/.git-tag"`"
 
 if [ "$TEST_VERSION" = "" ]; then
