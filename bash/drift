@@ -33,7 +33,7 @@ fi
 
 message_info "Kopierer over ny versjon..."
 PROD_VERSION="`cd "$LYT_REPO" && git describe --tags`"
-ssh $PROD_USER@$PROD_IP rm "$PROD_PATH/*" -rf
+ssh $PROD_USER@$PROD_IP rm "$PROD_PATH"/..?* "$PROD_PATH"/.[!.]* "$PROD_PATH"/* -rf
 rsync -az "$DIR/../target/www/" $PROD_USER@$PROD_IP:"$PROD_PATH/" -v
 echo $PROD_VERSION | ssh $PROD_USER@$PROD_IP "cat >> \"$PROD_PATH/.git-tag\""
 
